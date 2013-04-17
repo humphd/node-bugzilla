@@ -1,6 +1,6 @@
 {
   "name": "node-bugzilla",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A node module to make filing bugs in node apps easy",
   "author": "David Humphrey <david.humphrey@senecacollege.ca>",
   "main": "index.js",
