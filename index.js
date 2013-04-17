@@ -163,7 +163,7 @@ function connect( options, callback ) {
 
     // Add some useful bugzilla config info to our instance
     bugzilla.version = result.version;
-    bugzilla.maxAttachmentSizeBytes = result['max_attachment_size'];
+    bugzilla.maxAttachmentSizeBytes = result.max_attachment_size;
     bugzilla.defaults = defaults;
 
     callback();
