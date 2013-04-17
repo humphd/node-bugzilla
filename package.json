@@ -1,0 +1,18 @@
+{
+  "name": "node-bugzilla",
+  "version": "0.0.1",
+  "description": "A node module to make filing bugs in node apps easy",
+  "main": "index.js",
+  "repository": "",
+  "keywords": [
+    "bugzilla",
+    "express",
+    "middleware",
+    "connect"
+  ],
+  "dependencies": {
+    "bz": "0.2.5"
+  },
+  "author": "David Humphrey <david.humphrey@senecacollege.ca>",
+  "license": "Apache 2.0"
+}
