@@ -16,7 +16,7 @@ npm install node-bugzilla
 To use `node-bugzilla` in your app, first require it, and create an instance by connecting to a [Bugzilla REST API](https://wiki.mozilla.org/Bugzilla:REST_API):
 
 ```javascript
-require( 'node-bugzilla' ).connect({
+var bugzilla = require( 'node-bugzilla' ).connect({
   url: "https://api-dev.bugzilla.mozilla.org/1.3/",
   username: "user",
   password: "secret",
@@ -55,7 +55,7 @@ The `connect` method must be called first. It creates and returns an instance. I
 You can also specify an optional `callback` function in order to make sure that your instance is properly connected (the `connect` method tries to connect to the url and with the given username/password):
 
 ```javascript
-require( 'node-bugzilla' ).connect({
+var bugzilla = require( 'node-bugzilla' ).connect({
   url: "https://api-dev.bugzilla.mozilla.org/1.3/",
   username: "user",
   password: "secret",
