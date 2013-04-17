@@ -21,8 +21,8 @@ require( 'node-bugzilla' ).connect({
   username: "user",
   password: "secret",
   defaults: {
-    "product": "FoodReplicator",
-    "component": "Salt"
+    "product": "My Bugzilla Product",
+    "component": "My Bugzilla Component"
   }
 },
 function callback( err, bugzilla ) {
@@ -48,6 +48,15 @@ In the above example, a connection is made to the Mozilla Bugzilla test instance
 The callback function passed to `connect` enables one to get back the connected instance. If something goes wrong, `err` will contain the error message; otherwise the second argument contains the `bugzilla` object.
 
 With the connected `bugzilla` object, you can enable global exeception handling using `bugzilla.handleUncaughtExceptions`, such that all crashes create new bugs (or confirm one is already filed--only 1 bug will ever be filed for a given crash). You can optionally specify a `prefix` to add to any bug's summary, for example: [Crash:<name of your app>].  You can also provide an optional callback, which will get the unhandled error as well as the bug number that is filed against it. If your callback itself causes an unhandled exception, no bug will be filed.
+
+# Testing
+
+You can try `node-bugzilla` using Mozilla's test server:
+
+* Web: http://landfill.bugzilla.org/bzapi_sandbox/
+* API: https://api-dev.bugzilla.mozilla.org/test/1.3/ or https://api-dev.bugzilla.mozilla.org/test/latest/
+
+The URL you provide with your options to `connect` needs to be the API endpoint, not the Web URL.
 
 # License
 
