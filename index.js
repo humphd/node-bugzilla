@@ -122,7 +122,12 @@ function connect( options, callback ) {
         password: password
       });
 
-  // TODO: set some defaults we can automatically include
+  // Set some sane defaults if things aren't provided.
+  defaults.platform = defaults.platform || 'All';
+  defaults[ 'op_sys' ] = defaults[ 'op_sys' ] || 'All';
+  defaults.severity = defaults.severity || 'normal';
+  defaults.version = defaults.version || '1.0';
+  defaults.priority = defaults.priority || 'P2';
 
   // Test the connection to the server
   bugzilla.getConfiguration( function( err, result ) {

@@ -2,6 +2,8 @@
 
 A node module that makes it easy to file bugs automatically from node and Express apps.
 
+When an uncaught exception happens in a node app, `node-bugzilla` handles it and confirms that there is a bug filed in Bugzilla for this crash. Crashes are identified by their summary, which includes an optional user supplied prefix (e.g., "[Crash:<my-app>]"), an error message (the value of `err.message`) and the filename and line number of the crash's top frame. Bugs are only filed once, and additional crashes in the same location will not fill-up your Bugzilla server with duplicates.
+
 # Install
 For [node](http://nodejs.org) install with [npm](http://npmjs.org):
 
@@ -15,17 +17,12 @@ To use `node-bugzilla` in your app, first require it, and create an instance by 
 
 ```javascript
 require( 'node-bugzilla' ).connect({
-  url: "https://api-dev.bugzilla.mozilla.org/test/1.3/",
+  url: "https://api-dev.bugzilla.mozilla.org/1.3/",
   username: "user",
   password: "secret",
   defaults: {
     "product": "FoodReplicator",
-    "component": "Salt",
-    "platform": "All",
-    "op_sys": "All",
-    "severity": "normal",
-    "version": "1.0",
-    "priority": "P2"
+    "component": "Salt"
   }
 },
 function callback( err, bugzilla ) {
