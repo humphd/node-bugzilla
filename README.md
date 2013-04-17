@@ -2,6 +2,8 @@
 
 A node module that makes it easy to file bugs automatically from node and Express apps.
 
+# Overview
+
 When an uncaught exception happens in a node app, `node-bugzilla` handles it and confirms that there is a bug filed in Bugzilla for this crash. Crashes are identified by their summary, which includes an optional user supplied prefix (e.g., "[Crash:my-app]"), an error message (the value of `err.message`) and the filename and line number of the crash's top frame. Bugs are only filed once, and additional crashes in the same location will not fill-up your Bugzilla server with duplicates.
 
 # Install
@@ -17,7 +19,7 @@ To use `node-bugzilla` in your app, first require it, and create an instance by 
 
 ```javascript
 var bugzilla = require( 'node-bugzilla' ).connect({
-  url: "https://api-dev.bugzilla.mozilla.org/1.3/",
+  url: "https://api-dev.bugzilla.mozilla.org/test/1.3/",
   username: "user",
   password: "secret",
   defaults: {
@@ -47,10 +49,10 @@ With the `bugzilla` object, you can enable global exeception handling using `han
 
 The `connect` method must be called first. It creates and returns an instance. It expects a number of options, and an optional callback:
 
-* url - the Bugzilla REST API url to use, for example https://api-dev.bugzilla.mozilla.org/1.3/ (see [Bugzilla REST API](https://wiki.mozilla.org/Bugzilla:REST_API))
-* username - a Bugzilla username
-* password - the user's password
-* defaults - a list of bug [fields](https://wiki.mozilla.org/Bugzilla:REST_API:Objects#Bug)) and their values to use when creating new bugs. Only the `product` and `component` fields are necessary, but any valid field can be specified. The `platform` (All), `op_sys` (All), `severity` (normal), `version` (1.0), and `priority` (P2) fields will be given default values if left absent, since Bugzilla expects them to be specified.
+* `url` - the Bugzilla REST API url to use, for example https://api-dev.bugzilla.mozilla.org/1.3/ (see [Bugzilla REST API](https://wiki.mozilla.org/Bugzilla:REST_API))
+* `username` - a Bugzilla username
+* `password` - the user's password
+* `defaults` - an `Object` list of bug [fields](https://wiki.mozilla.org/Bugzilla:REST_API:Objects#Bug) and their values to use when creating new bugs. Only the `product` and `component` fields are necessary, but any valid field can be specified. Default values will be used for The `platform` (All), `op_sys` (All), `severity` (normal), `version` (1.0), and `priority` (P2) fields if left absent, since Bugzilla expects them to be specified.
 
 You can also specify an optional `callback` function in order to make sure that your instance is properly connected (the `connect` method tries to connect to the url and with the given username/password):
 
@@ -79,8 +81,8 @@ Once `connect` has been called, and you have an instance, you can call the `hand
 
 The `callback` will receive two arguments, an error message, and a crash report:
 
-* error - either a `String` indicating that the connection to bugzilla didn't work, or nothing if successful.
-* report - an `Object` with an `err` property (the uncaught exception), and a `bug` property (the bug's id that was filed for this issue).
+* `error` - either a `String` indicating that the connection to bugzilla didn't work, or nothing if successful.
+* `report` - an `Object` with an `err` property (the uncaught exception), and a `bug` property (the bug's id that was filed for this issue).
 
 # Testing
 
