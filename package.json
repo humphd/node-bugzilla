@@ -2,17 +2,25 @@
   "name": "node-bugzilla",
   "version": "0.0.1",
   "description": "A node module to make filing bugs in node apps easy",
+  "author": "David Humphrey <david.humphrey@senecacollege.ca>",
   "main": "index.js",
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/humphd/node-bugzilla.git"
+  },
   "keywords": [
     "bugzilla",
+    "crash",
+    "bug",
     "express",
     "middleware",
     "connect"
   ],
   "dependencies": {
-    "bz": "0.2.5"
+    "bz": "~0.2.5"
   },
-  "author": "David Humphrey <david.humphrey@senecacollege.ca>",
-  "license": "Apache 2.0"
+  "license": {
+    "type": "Apache",
+    "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+  }
 }
