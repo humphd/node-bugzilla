@@ -32,11 +32,15 @@ function getSourceLines( frame0, context, callback ) {
     }
 
     // Grab `context` lines of context on either side of the line
-    data = data.split( /\r?\n/ );
-    data[ line - 1 ] += " <<<<<<<< Line " + line;
     var start = Math.max( 0, line - context ),
         end = Math.min( data.length, line + context ),
-        lines = data.slice( start, end ).join( '\n' );
+        lines = data.split( /\r?\n/ )
+                    .slice( start, end )
+                    .map( function( text ) {
+                      // Prepend the line number
+                      return ( ++start ) + '  ' + text;
+                    })
+                    .join( '\n' );
 
     callback( null, filename + ':' + line + '\n' + lines );
   });
@@ -61,7 +65,7 @@ function fileBug( prefix, error, bugzilla, callback ) {
       suffix = frame0.filename ? ' @ ' + frame0.filename + ':' + frame0.line : '',
       summary = prefix + error.message + suffix;
 
-  // If there's already a bug on file, don't file another
+  // If there's already an open bug on file, don't file another
   bugzilla.searchBugs({
     summary: summary,
     summary_type: 'contains_all_words'
@@ -72,8 +76,20 @@ function fileBug( prefix, error, bugzilla, callback ) {
       return;
     }
 
-    if ( bugs.length >= 1 ) {
-      callback( null, bugs[ 0 ].id );
+    // We may have seen this bug before and RESOLVED it. Figure out
+    // which matches are OPEN vs. RESOLVED.
+    var open = [],
+        resolved = [];
+    bugs.forEach( function( bug ) {
+      if ( bug.status === 'RESOLVED' ) {
+        resolved.push( bug.id );
+      } else {
+        open.push( bug.id );
+      }
+    });
+
+    if ( open.length >= 1 ) {
+      callback( null, open[ 0 ] );
       return;
     }
 
@@ -83,10 +99,19 @@ function fileBug( prefix, error, bugzilla, callback ) {
         sourceLines = '';
       }
 
-      var bug = {
-        summary: summary,
-        comments: [{ text: error.stack + '\n\n' + sourceLines }]
-      };
+      // For the comment, include lines of context for frame 0, the stack
+      // and any related bugs also on file.
+      var relatedOpen = open.map( function( b ) { return 'Bug #' + b; } ).join( ', ' ),
+          relatedResolved = resolved.map( function( b ) { return 'Bug #' + b; } ).join( ', ' ),
+          seeAlso = relatedOpen || relatedResolved,
+          bug = {
+            summary: summary,
+            comments: [{
+              text: sourceLines + '\n\n' +
+                    error.stack + '\n\n' +
+                    ( seeAlso ? 'See also: ' + relatedOpen + ' ' + relatedResolved : '' )
+          }]
+        };
 
       // Populate bug with bug field defaults.
       Object.keys( bugzilla.defaults ).forEach( function( key ) {
@@ -122,9 +147,9 @@ function connect( options, callback ) {
         password: password
       });
 
-  // Set some sane defaults if things aren't provided.
+  // Set some sane defaults of required fields if things aren't provided.
   defaults.platform = defaults.platform || 'All';
-  defaults[ 'op_sys' ] = defaults[ 'op_sys' ] || 'All';
+  defaults.op_sys = defaults.op_sys || 'All';
   defaults.severity = defaults.severity || 'normal';
   defaults.version = defaults.version || '1.0';
   defaults.priority = defaults.priority || 'P2';
@@ -141,7 +166,11 @@ function connect( options, callback ) {
     bugzilla.maxAttachmentSizeBytes = result['max_attachment_size'];
     bugzilla.defaults = defaults;
 
-    bugzilla.handleUncaughtExceptions = function( prefix, callback ) {
+    callback();
+  });
+
+  return {
+    handleUncaughtExceptions: function( prefix, callback ) {
       // Don't handle more than one crash, in case the callback also throws
       // and we end-up in an infinite loop.
       process.once( 'uncaughtException', function( err ) {
@@ -150,10 +179,8 @@ function connect( options, callback ) {
           callback( error, { err: err, bug: bug } );
         });
       });
-    };
-
-    callback( null, bugzilla );
-  });
+    }
+  };
 }
 
 exports.connect = connect;

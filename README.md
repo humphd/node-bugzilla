@@ -24,30 +24,63 @@ require( 'node-bugzilla' ).connect({
     "product": "My Bugzilla Product",
     "component": "My Bugzilla Component"
   }
-},
-function callback( err, bugzilla ) {
+});
+
+bugzilla.handleUncaughtExceptions( '[Crash:my-app]', function( err, result ) {
   if ( err ) {
-    console.log( 'node-bugzilla error: Unable to connect to bugzilla.' );
+    console.log( 'Crash, node-bugzilla unable to file bug in bugzilla.' );
     return;
   }
 
-  bugzilla.handleUncaughtExceptions( '[Crash:my-app]', function( err, result ) {
-    if ( err ) {
-      console.log( 'node-bugzilla error: Crash, but unable to file bug in bugzilla.' );
-      return;
-    }
-
-    console.log( "Crash, Bug #" + result.bug );
-    console.log( result.err.stack );
-  });
+  console.log( "Crash, Bug #" + result.bug );
+  console.log( result.err.stack );
 });
 ```
 
 In the above example, a connection is made to the Mozilla Bugzilla test instance. A number of default fields are specified, which will be used when creating new bugs (note: `product` and `component` are required, and you can specify [other fields](https://wiki.mozilla.org/Bugzilla:REST_API:Objects#Bug)).
 
-The callback function passed to `connect` enables one to get back the connected instance. If something goes wrong, `err` will contain the error message; otherwise the second argument contains the `bugzilla` object.
+With the `bugzilla` object, you can enable global exeception handling using `handleUncaughtExceptions`, such that all crashes create new bugs (or confirm one is already filed--only 1 bug will ever be filed for a given crash). You can optionally specify a `prefix` to add to any bug's summary, for example: [Crash:my-app]. You can also provide an optional callback, which will get the unhandled error as well as the bug number that is filed against it. If your callback itself causes an unhandled exception, no bug will be filed.
 
-With the connected `bugzilla` object, you can enable global exeception handling using `bugzilla.handleUncaughtExceptions`, such that all crashes create new bugs (or confirm one is already filed--only 1 bug will ever be filed for a given crash). You can optionally specify a `prefix` to add to any bug's summary, for example: [Crash:my-app]. You can also provide an optional callback, which will get the unhandled error as well as the bug number that is filed against it. If your callback itself causes an unhandled exception, no bug will be filed.
+# Methods
+
+## connect( options, [callback] )
+
+The `connect` method must be called first. It creates and returns an instance. It expects a number of options, and an optional callback:
+
+* url - the Bugzilla REST API url to use, for example https://api-dev.bugzilla.mozilla.org/1.3/ (see [Bugzilla REST API](https://wiki.mozilla.org/Bugzilla:REST_API))
+* username - a Bugzilla username
+* password - the user's password
+* defaults - a list of bug [fields](https://wiki.mozilla.org/Bugzilla:REST_API:Objects#Bug)) and their values to use when creating new bugs. Only the `product` and `component` fields are necessary, but any valid field can be specified. The `platform` (All), `op_sys` (All), `severity` (normal), `version` (1.0), and `priority` (P2) fields will be given default values if left absent, since Bugzilla expects them to be specified.
+
+You can also specify an optional `callback` function in order to make sure that your instance is properly connected (the `connect` method tries to connect to the url and with the given username/password):
+
+```javascript
+require( 'node-bugzilla' ).connect({
+  url: "https://api-dev.bugzilla.mozilla.org/1.3/",
+  username: "user",
+  password: "secret",
+  defaults: {
+    "product": "My Bugzilla Product",
+    "component": "My Bugzilla Component"
+  }
+},
+function( err ) {
+  if ( err ) {
+    console.log( 'node-bugzilla unable to connect to server.' );
+  } else {
+    console.log( 'node-bugzilla connected to server.' );
+  }
+});
+```
+
+## handleUncaughtExceptions( [prefix], [callback] )
+
+Once `connect` has been called, and you have an instance, you can call the `handleUncaughtExceptions` method. It can optionally be passed a `prefix` and a `callback`. The `prefix` is a string to add to the summary of any bugs filed, and is useful for indicating the name of your app.
+
+The `callback` will receive two arguments, an error message, and a crash report:
+
+* error - either a `String` indicating that the connection to bugzilla didn't work, or nothing if successful.
+* report - an `Object` with an `err` property (the uncaught exception), and a `bug` property (the bug's id that was filed for this issue).
 
 # Testing
 
